@@ -138,6 +138,15 @@ class SentryReporter {
 		$eventId = str_replace( '-', '', self::uuid4() );
 		$timestamp = gmdate( 'Y-m-d\TH:i:s' );
 
+		$ip = self::hashGet( $pHash, 'ip', '' );
+		$url = self::hashGet( $pHash, 'url', '' );
+		if( $url === '' ) {
+			$host = self::hashGet( $pHash, 'host', '' );
+			$uri = self::hashGet( $pHash, 'uri', '' );
+			$url = ( $host !== '' ? 'https://'.$host : '' ).$uri;
+		}
+		$userHash = ( !empty( $pHash['user'] ) && is_array( $pHash['user'] ) ) ? $pHash['user'] : array();
+
 		$event = array(
 			'event_id'    => $eventId,
 			'timestamp'   => $timestamp,
@@ -152,14 +161,41 @@ class SentryReporter {
 				'channel' => self::hashGet( $pHash, 'channel', 'php_error' ),
 				'sapi'    => self::hashGet( $pHash, 'sapi', PHP_SAPI ),
 				'is_live' => !empty( $pHash['is_live'] ) ? 'y' : 'n',
+				'ip'      => $ip,
+				'login'   => self::hashGet( $userHash, 'login', '' ),
+			),
+			// Client IP / UA / URL — not the GlitchTip ingest connection IP.
+			'user'        => array(
+				'id'         => self::hashGet( $userHash, 'id', NULL ),
+				'username'   => self::hashGet( $userHash, 'login', NULL ),
+				'email'      => self::hashGet( $userHash, 'email', NULL ),
+				'ip_address' => $ip !== '' ? $ip : NULL,
+			),
+			'request'     => array(
+				'url'     => $url,
+				'method'  => self::hashGet( $pHash, 'request_method', NULL ),
+				'headers' => array(
+					'User-Agent' => self::hashGet( $pHash, 'user_agent', '' ),
+					'Referer'    => self::hashGet( $pHash, 'referrer', '' ),
+				),
+				'env'     => array(
+					'REMOTE_ADDR' => $ip,
+					'HTTP_HOST'   => self::hashGet( $pHash, 'host', '' ),
+				),
 			),
 			'extra'       => array(
-				'file'   => $file,
-				'line'   => $line,
-				'errno'  => (int) self::hashGet( $pHash, 'errno', 0 ),
-				'script' => self::hashGet( $pHash, 'script', '' ),
-				'uri'    => self::hashGet( $pHash, 'uri', '' ),
-				'stack'  => self::hashGet( $pHash, 'stack', '' ),
+				'file'       => $file,
+				'line'       => $line,
+				'errno'      => (int) self::hashGet( $pHash, 'errno', 0 ),
+				'script'     => self::hashGet( $pHash, 'script', '' ),
+				'uri'        => self::hashGet( $pHash, 'uri', '' ),
+				'url'        => $url,
+				'referrer'   => self::hashGet( $pHash, 'referrer', '' ),
+				'user_agent' => self::hashGet( $pHash, 'user_agent', '' ),
+				'ip'         => $ip,
+				'acct'       => self::formatAcct( $userHash ),
+				'db'         => self::hashGet( $pHash, 'db', '' ),
+				'stack'      => self::hashGet( $pHash, 'stack', '' ),
 			),
 		);
 
@@ -269,5 +305,24 @@ class SentryReporter {
 		return ( is_array( $pHash ) && array_key_exists( $pKey, $pHash ) && $pHash[$pKey] !== NULL && $pHash[$pKey] !== '' )
 			? $pHash[$pKey]
 			: $pDefault;
+	}
+
+	/**
+	 * Match bit_error_string ACCT line shape (no secrets beyond login/email).
+	 *
+	 * @param array $pUser
+	 * @return string
+	 */
+	protected static function formatAcct( $pUser ) {
+		if( empty( $pUser ) || !is_array( $pUser ) ) {
+			return 'User unknown';
+		}
+		$id = self::hashGet( $pUser, 'id', NULL );
+		$login = self::hashGet( $pUser, 'login', NULL );
+		$email = self::hashGet( $pUser, 'email', NULL );
+		if( $id === NULL && $login === NULL && $email === NULL ) {
+			return 'User unknown';
+		}
+		return 'ID: '.( $id !== NULL ? $id : '' ).' - Login: '.( $login ? $login : '' ).' - e-mail: '.( $email ? $email : '' );
 	}
 }

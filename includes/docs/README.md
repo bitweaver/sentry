@@ -27,6 +27,28 @@ Does not replace Kernel email, compact admin error boxes, or Xdebug policy.
 Does not embed the official `sentry/sentry` Composer SDK; uses a minimal HTTP
 Store client (`SentryReporter`).
 
+## Request / user context
+
+GlitchTip/Sentry’s default “IP” on an event is often the **app server’s outbound
+address** to the ingest host (e.g. `72.15.192.x`), not the browser client.
+
+This package maps Kernel report fields (same sources as `bit_error_string()` /
+`bit_error_email()` headers) into the Store payload:
+
+| Email-style header | Sentry field |
+|--------------------|--------------|
+| `#### IP` (`REMOTE_ADDR`) | `user.ip_address`, `request.env.REMOTE_ADDR`, tag `ip` |
+| `#### ACCT` | `user.id` / `username` / `email`, `extra.acct` |
+| `#### USER AGENT` | `request.headers.User-Agent` |
+| `#### URL` | `request.url` |
+| `#### REFERRER` | `request.headers.Referer` |
+| `#### HOST` | `server_name` / `request.env.HTTP_HOST` |
+| `#### DB` | `extra.db` (no password) |
+
+Developer-local GlitchTip API tokens for Grok (never commit) live under
+`$DEV_ROOT/.secrets` as `name: token` lines, e.g.
+`grok_glitchtip_sentry.bitweaver.org: <token>`.
+
 ## Configuration
 
 | Preference | Meaning |
