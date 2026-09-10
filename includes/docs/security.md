@@ -22,5 +22,5 @@ reporter to attach payment fields, cookies, or full session dumps.
 ## Trust
 
 The configured Sentry/GlitchTip host receives application error text and paths.
-Use an internal or trusted host (`sentry.bitweaver.org`, private GlitchTip, or
+Use an internal or trusted host (self-hosted Sentry, private GlitchTip, or
 sentry.io under your org).

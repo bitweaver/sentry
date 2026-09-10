@@ -6,8 +6,7 @@
 ## Purpose
 
 Optional Bitweaver package that reports PHP errors to a **Sentry-compatible**
-server (sentry.io, self-hosted Sentry, or GlitchTip such as
-`sentry.bitweaver.org`).
+server (sentry.io, self-hosted Sentry, or GlitchTip).
 
 ## Responsibility
 
@@ -29,8 +28,8 @@ Store client (`SentryReporter`).
 
 ## Request / user context
 
-GlitchTip/Sentry’s default “IP” on an event is often the **app server’s outbound
-address** to the ingest host (e.g. `72.15.192.x`), not the browser client.
+GlitchTip/Sentry’s default “IP” on an event is often the **PHP host’s outbound
+address** to the ingest host, not the browser client.
 
 This package maps Kernel report fields (same sources as `bit_error_string()` /
 `bit_error_email()` headers) into the Store payload:
@@ -44,10 +43,6 @@ This package maps Kernel report fields (same sources as `bit_error_string()` /
 | `#### REFERRER` | `request.headers.Referer` |
 | `#### HOST` | `server_name` / `request.env.HTTP_HOST` |
 | `#### DB` | `extra.db` (no password) |
-
-Developer-local GlitchTip API tokens for Grok (never commit) live under
-`$DEV_ROOT/.secrets` as `name: token` lines, e.g.
-`grok_glitchtip_sentry.bitweaver.org: <token>`.
 
 ## Configuration
 
@@ -63,5 +58,4 @@ Admin: Kernel admin → package **Sentry** → Sentry Settings
 ## Documentation map
 
 - This README — purpose and configuration.
-- Kernel plan (developer-local): `$DEV_ROOT/kernel/plans/local-sentry-notice-fatal.md`
-  — agnostic hook design and rollout notes.
+- [Security](security.md) — DSN handling and what is sent to the remote host.

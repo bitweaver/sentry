@@ -9,7 +9,7 @@ require_once( KERNEL_PKG_INCLUDE_PATH.'simple_form_functions_lib.php' );
 $formSentry = array(
 	'sentry_dsn' => array(
 		'label' => 'Sentry DSN',
-		'note'  => 'Sentry or GlitchTip DSN, e.g. https://&lt;public_key&gt;@sentry.bitweaver.org/&lt;project_id&gt;. Leave empty to disable reporting.',
+		'note'  => 'Sentry or GlitchTip DSN, e.g. https://&lt;public_key&gt;@host/&lt;project_id&gt;. Leave empty to disable reporting.',
 		'type'  => 'input',
 	),
 	'sentry_environment' => array(
