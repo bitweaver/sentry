@@ -19,7 +19,7 @@ $formSentry = array(
 	),
 	'sentry_report_levels' => array(
 		'label' => 'Report levels',
-		'note'  => 'Comma-separated: notice, warning, deprecated, fatal, error. Default: notice,fatal.',
+		'note'  => 'Comma-separated: notice, warning, deprecated, fatal, error. Default: notice,fatal. Does not filter bit_error_log() (channel error_log); those are always sent when a DSN is set.',
 		'type'  => 'input',
 	),
 );

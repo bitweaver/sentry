@@ -16,8 +16,10 @@ tree. Confirm with 403/404 on `includes/` PHP and docs URLs (not PHP 500).
 ## Data sent to the remote server
 
 Kernel’s report hash is already scrubbed (compact stack, no raw POST/SESSION).
-This package forwards that hash plus host/script/URI tags. Do not extend the
-reporter to attach payment fields, cookies, or full session dumps.
+This package forwards that hash plus host/script/URI tags. Channel `error_log`
+may include CLI command lines and stderr (for example ImageMagick) in
+`message` / `extra.detail`. Do not extend the reporter to attach payment
+fields, cookies, or full session dumps.
 
 ## Trust
 

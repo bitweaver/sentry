@@ -17,7 +17,9 @@ server (sentry.io, self-hosted Sentry, or GlitchTip).
 ## Dependencies
 
 - **Kernel** — `bit_error_register_reporter()` / `bit_error_notify()` /
-  `bit_error_build_report_hash()` (no vendor SDK in Kernel).
+  `bit_error_build_report_hash()` (no vendor SDK in Kernel). PHP errors
+  come from `bit_error_handler`. `bit_error_log()` notifies with channel
+  `error_log` (ImageMagick CLI exits and other operational logs).
 - Outbound HTTPS to the configured Sentry/GlitchTip host.
 
 ## Boundary
@@ -50,7 +52,7 @@ This package maps Kernel report fields (same sources as `bit_error_string()` /
 |------------|---------|
 | `sentry_dsn` | DSN URL (`https://<key>@host/<project_id>`). Empty = disabled. |
 | `sentry_environment` | Optional environment tag; empty → `live` or `development`. |
-| `sentry_report_levels` | Comma list: `notice`, `warning`, `deprecated`, `fatal`, `error`. Default `notice,fatal`. |
+| `sentry_report_levels` | Comma list: `notice`, `warning`, `deprecated`, `fatal`, `error`. Default `notice,fatal`. Filters **PHP** errors only. Channel `error_log` (`bit_error_log()`) is always sent when `sentry_dsn` is set. |
 
 Admin: Kernel admin → package **Sentry** → Sentry Settings
 (`kernel/admin/index.php?page=sentry`).

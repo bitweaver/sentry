@@ -26,7 +26,9 @@ class SentryReporter {
 			return;
 		}
 
-		if( !self::levelAllowed( $pHash, $gBitSystem->getConfig( 'sentry_report_levels', 'notice,fatal' ) ) ) {
+		$channel = strtolower( (string) self::hashGet( $pHash, 'channel', 'php_error' ) );
+		// bit_error_log() is not a PHP error; default levels are notice,fatal.
+		if( $channel !== 'error_log' && !self::levelAllowed( $pHash, $gBitSystem->getConfig( 'sentry_report_levels', 'notice,fatal' ) ) ) {
 			return;
 		}
 
@@ -196,6 +198,7 @@ class SentryReporter {
 				'acct'       => self::formatAcct( $userHash ),
 				'db'         => self::hashGet( $pHash, 'db', '' ),
 				'stack'      => self::hashGet( $pHash, 'stack', '' ),
+				'detail'     => self::truncateDetail( self::hashGet( $pHash, 'detail', '' ) ),
 			),
 		);
 
@@ -268,11 +271,26 @@ class SentryReporter {
 	}
 
 	/**
+	 * @param string $pDetail
+	 * @return string
+	 */
+	protected static function truncateDetail( $pDetail ) {
+		$pDetail = (string)$pDetail;
+		if( strlen( $pDetail ) <= 8192 ) {
+			return $pDetail;
+		}
+		return substr( $pDetail, 0, 8192 )."\n…";
+	}
+
+	/**
 	 * @param string $pErrtype
 	 * @param int $pErrno
 	 * @return string
 	 */
 	public static function sentryLevel( $pErrtype, $pErrno ) {
+		if( strcasecmp( (string)$pErrtype, 'ERROR_LOG' ) === 0 ) {
+			return 'error';
+		}
 		if( $pErrno & ( E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR ) || stripos( $pErrtype, 'fatal' ) !== FALSE ) {
 			return 'fatal';
 		}
