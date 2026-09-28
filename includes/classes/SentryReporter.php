@@ -27,8 +27,9 @@ class SentryReporter {
 		}
 
 		$channel = strtolower( (string) self::hashGet( $pHash, 'channel', 'php_error' ) );
-		// bit_error_log() is not a PHP error; default levels are notice,fatal.
-		if( $channel !== 'error_log' && !self::levelAllowed( $pHash, $gBitSystem->getConfig( 'sentry_report_levels', 'notice,fatal' ) ) ) {
+		// bit_error_log() and database failures are not PHP error levels.
+		// Default levels are notice,fatal, which would drop both.
+		if( $channel !== 'error_log' && $channel !== 'db_error' && !self::levelAllowed( $pHash, $gBitSystem->getConfig( 'sentry_report_levels', 'notice,fatal' ) ) ) {
 			return;
 		}
 

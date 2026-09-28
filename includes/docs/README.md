@@ -20,7 +20,9 @@ server (sentry.io, self-hosted Sentry, or GlitchTip).
   `bit_error_build_report_hash()` (no vendor SDK in Kernel). PHP errors
   come from `bit_error_handler`. `bit_error_log()` notifies with channel
   `error_log` (ImageMagick CLI exits and other operational logs).
-  `bit_debug_log()` and `BitBase::debugOutput()` do not notify.
+  ADODB failures notify with channel `db_error` from `bitdb_error_handler()`
+  (message is the database error; `extra.detail` is the SQL text without
+  bind values). `bit_debug_log()` and `BitBase::debugOutput()` do not notify.
 - Outbound HTTPS to the configured Sentry/GlitchTip host.
 
 ## Boundary
@@ -53,7 +55,7 @@ This package maps Kernel report fields (same sources as `bit_error_string()` /
 |------------|---------|
 | `sentry_dsn` | DSN URL (`https://<key>@host/<project_id>`). Empty = disabled. |
 | `sentry_environment` | Optional environment tag; empty → `live` or `development`. |
-| `sentry_report_levels` | Comma list: `notice`, `warning`, `deprecated`, `fatal`, `error`. Default `notice,fatal`. Filters **PHP** errors only. Channel `error_log` (`bit_error_log()`) is always sent when `sentry_dsn` is set; `bit_debug_log()` / `debugOutput()` never send. |
+| `sentry_report_levels` | Comma list: `notice`, `warning`, `deprecated`, `fatal`, `error`. Default `notice,fatal`. Filters **PHP** errors only. Channels `error_log` (`bit_error_log()`) and `db_error` (ADODB / `bitdb_error_handler()`) are always sent when `sentry_dsn` is set; `bit_debug_log()` / `debugOutput()` never send. |
 
 Admin: Kernel admin → package **Sentry** → Sentry Settings
 (`kernel/admin/index.php?page=sentry`).
